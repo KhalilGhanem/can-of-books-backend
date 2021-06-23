@@ -6,6 +6,7 @@ const mongoose = require('mongoose');
 require('dotenv').config();
 
 server.use(cors());
+server.use(express.json());
 const PORT=process.env.PORT || 3001;
 mongoose.connect('mongodb://localhost:27017/books', {useNewUrlParser: true, useUnifiedTopology: true});
 
@@ -101,17 +102,44 @@ function seedUsersCollection (){
         }
     ]
     });
+    const user3= new myUserModel({
+    useremail:`khalil_ghanem7@yahoo.com`,
+    books: [
+        {
+        bookName : '1984',
+        description : 'The year 1984 has come and gone, but George Orwell\'s prophetic, nightmarish vision in 1949 of the world we were becoming is timelier than ever. 1984 is still the great modern classic of "negative utopia"—a startlingly original and haunting novel that creates an imaginary world that is completely convincing, from the first sentence to the last four words.',
+        status : 'Top rated',
+        bookUrl:'https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1348990566l/5470.jpg',
+        },
+        {
+         bookName : 'The Lord of the Rings',
+         description : 'In ancient times the Rings of Power were crafted by the Elven-smiths, and Sauron, the Dark Lord, forged the One Ring, filling it with his own power so that he could rule all others. But the One Ring was taken from him, and though he sought it throughout Middle-earth, it remained lost to him. After many ages it fell by chance into the hands of the hobbit Bilbo Baggins.',
+         status : 'favorite',
+         bookUrl:'https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1566425108l/33.jpg',
+        },
+        {
+         bookName : 'Gone with the Wind',
+         description : 'Scarlett O\'Hara, the beautiful, spoiled daughter of a well-to-do Georgia plantation owner, must use every means at her disposal to claw her way out of the poverty she finds herself in after Sherman\'s March to the Sea. ',
+         status : 'favorite',
+         bookUrl:'https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1551144577l/18405._SY475_.jpg',
+        }
+    ]
+    });
 
-    console.log(user1);
-    console.log(user2);
+    // console.log(user1);
+    // console.log(user2);
     user1.save();
     user2.save();
+    user3.save();
     // console.log(user1);
 }
-seedUsersCollection ();
+// seedUsersCollection ();
 
 server.get('/',homeHandler);
 server.get('/books', getBooksHandler);
+server.post('/addbooks', addbBookssHandler);
+server.delete('/deletebooks/:idx', deleteBookssHandler);
+
 
 function homeHandler(req,res){
     res.send('Home Route');
@@ -121,7 +149,7 @@ function getBooksHandler(req,res){
     let requestedUserEmail = req.query.useremail;
     myUserModel.find({useremail:requestedUserEmail},function(err,ownerData){
         if(err){
-            console.log('something went wrong');
+            res.send('something went wrong');
         }
         else
         {
@@ -130,6 +158,47 @@ function getBooksHandler(req,res){
         }
     })
 }
+
+function addbBookssHandler(req,res){
+    // console.log(req.body);
+    const {bookname,bookDescription,bookStatus,useremail} =req.body;
+    myUserModel.find({useremail},(err,userdata)=>{
+        if(err){
+            res.send('something went wrong');
+        }else{
+            // console.log(userdata[0].books);
+            userdata[0].books.push({
+                bookName:bookname,
+                description:bookDescription,
+                status:bookStatus,
+            })
+            userdata[0].save();
+            res.send(userdata[0].books);
+        }
+    })
+}
+
+function deleteBookssHandler (req,res){
+    const {useremail} =req.query;
+    const idx=Number(req.params.idx);
+    // console.log(useremail,idx);
+    myUserModel.find({useremail},(err,userdata)=>{
+        if(err){
+            res.send('something went wrong');
+        }else{
+            const bookArr=userdata[0].books.filter((book,index)=>{
+                if(index !==idx){
+                    return book;
+                }
+            });
+            userdata[0].books=bookArr;
+            userdata[0].save();
+            res.send(userdata[0].books);
+        }
+    })
+
+}
+
 
 server.listen(PORT, ()=>{
     console.log(`listening for PORT:${PORT}`);
