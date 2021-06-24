@@ -4,16 +4,17 @@ const server =express();
 const cors = require("cors");
 const mongoose = require('mongoose');
 require('dotenv').config();
-
+var MongoClient = require('mongodb').MongoClient;
 server.use(cors());
 server.use(express.json());
 const PORT=process.env.PORT || 3001;
 // mongoose.connect('mongodb://localhost:27017/books', {useNewUrlParser: true, useUnifiedTopology: true});
+//mongodb+srv://KhalilGhanem:Doom10521@cluster0.ddimm.mongodb.net/books?retryWrites=true&w=majority
 mongoose.connect(process.env.MONGODB_URI, {useNewUrlParser: true, useUnifiedTopology: true});
 
 
-
 //create a schema
+console.log(process.env.MONGODB_URI+" please work2");
 const BooksSchema = new mongoose.Schema({
     bookName: String,
     description: String,
