@@ -139,6 +139,7 @@ server.get('/',homeHandler);
 server.get('/books', getBooksHandler);
 server.post('/addbooks', addbBookssHandler);
 server.delete('/deletebooks/:idx', deleteBookssHandler);
+server.put('/updatebooks/:idx', updateBookssHandler);
 
 
 function homeHandler(req,res){
@@ -197,6 +198,24 @@ function deleteBookssHandler (req,res){
         }
     })
 
+}
+
+function updateBookssHandler (req,res){
+    const {bookname,bookDescription,bookStatus,useremail}=req.body;
+    const idx=Number(req.params.idx);
+    myUserModel.findOne({useremail},(err,userdata)=>{
+        if(err){
+            res.send('something went wrong');
+        }else{
+             userdata.books.splice(idx,1,{
+                bookName:bookname,
+                description:bookDescription,
+                status:bookStatus,
+            });
+            userdata.save();
+            res.send(userdata.books);
+        }
+    })
 }
 
 
