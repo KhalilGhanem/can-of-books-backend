@@ -8,7 +8,8 @@ require('dotenv').config();
 server.use(cors());
 server.use(express.json());
 const PORT=process.env.PORT || 3001;
-mongoose.connect('mongodb://localhost:27017/books', {useNewUrlParser: true, useUnifiedTopology: true});
+// mongoose.connect('mongodb://localhost:27017/books', {useNewUrlParser: true, useUnifiedTopology: true});
+mongoose.connect(process.env.MONGODB_URI, {useNewUrlParser: true, useUnifiedTopology: true});
 
 
 
